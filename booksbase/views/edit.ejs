@@ -3,7 +3,7 @@
   <li class="breadcrumb-item active">Редагувати</li>
 </ol>
 <h1 class="display-4">Редагувати книгу</h1>
-<form method="POST" action="/books/update/<%= book.id %>">
+<form method="POST" action="/books/update/<%= book.id %>">  
   <div class="form-group">
     <label for="title">Назва</label>
     <input type="text" name="title" class="form-control" value="<%= book.title %>">

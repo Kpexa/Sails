@@ -25,24 +25,14 @@ module.exports = {
     let body = req.body.body;
 
     Books.create({title: title, body: body}).exec(function(err){
-      if(err){               
-        if(err.message.indexOf('title') >= 0 && err.message.indexOf('"required"') >= 0){
-          err.message = 'У полі для вводу назви книги, пусте значення НЕДОПУСТИМЕ!';
-          res.view('error', {message: err.message});
-          return;
-        }else if(err.message.indexOf('body') >= 0 && err.message.indexOf('"required"') >= 0){
-          err.message = 'У полі для вводу жанру книги, пусте значення НЕДОПУСТИМЕ!';                     
-          res.view('error', {message: err.message});        
-          return;
-        }else if(err.message.indexOf('title') >= 0 && err.message.indexOf('"regex"') >= 0){
-          err.message = 'Ви ввели не валідне значення для назви книги! Пробіли - це не дуже інформативно :)';                     
-          res.view('error', {message: err.message});        
-          return;
-        }else if(err.message.indexOf('body') >= 0 && err.message.indexOf('"regex"') >= 0){
-          err.message = 'Ви ввели недопустимі символи у полі для вводу жанру книги! Вводіть будь ласка тільки букви, та допустимі символи: "- ,"';                     
-          res.view('error', {message: err.message});        
+      if(err){
+        let errString = JSON.stringify(err.Errors);
+        if(errString.indexOf('"title"') >= 0){
+          res.view('error', {message: err.Errors.title[0].message});
           return;
         }
+        res.view('error', {message: err.Errors.body[0].message}); 
+        return;         
       }
       res.redirect('/books/list');      
     });
@@ -51,45 +41,35 @@ module.exports = {
   delete: function(req, res){
     Books.destroy({id: req.params.id}).exec(function(err){
       if(err){
-        res.send(500, {error: 'Помилка бази даних!'});
+        res.view(500, {error: 'Помилка бази даних!'});
       }
       res.redirect('/books/list');
     });
     return;
   },
 
-  edit: function(req, res){
+  edit: function(req, res){            
     Books.findOne({id: req.params.id}).exec(function(err, book){
       if(err){        
         res.send(500, {error: 'Помилка бази даних!'});
       }
-      res.view('edit', {book: book});
-    });
+      res.view('edit', {book: book});      
+    });       
   },
 
-  update: function(req, res){
+  update: function(req, res){    
     let title = req.body.title;
     let body = req.body.body;
 
     Books.update({id: req.params.id}, {title: title, body: body}).exec(function(err){
-      if(err){               
-        if(err.message.indexOf('title') >= 0 && err.message.indexOf('"required"') >= 0){
-          err.message = 'У полі для вводу назви книги, пусте значення НЕДОПУСТИМЕ!';
-          res.view('error', {message: err.message});
+       if(err){
+        let errString = JSON.stringify(err.Errors);
+        if(errString.indexOf('"title"') >= 0){
+          res.view('error', {message: err.Errors.title[0].message});
           return;
-        }else if(err.message.indexOf('body') >= 0 && err.message.indexOf('"required"') >= 0){
-          err.message = 'У полі для вводу жанру книги, пусте значення НЕДОПУСТИМЕ!';                     
-          res.view('error', {message: err.message});        
-          return;
-        }else if(err.message.indexOf('title') >= 0 && err.message.indexOf('"regex"') >= 0){
-          err.message = 'Назва книги перевищує допистиму довжину символів!';                     
-          res.view('error', {message: err.message});        
-          return;
-        }else if(err.message.indexOf('body') >= 0 && err.message.indexOf('"regex"') >= 0){
-          err.message = 'Недопустимий жанр книги!';                     
-          res.view('error', {message: err.message});        
-          return;        
         }
+        res.view('error', {message: err.Errors.body[0].message}); 
+        return;         
       }
       res.redirect('/books/list');
     });
